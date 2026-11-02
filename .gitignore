@@ -1,0 +1,23 @@
+# deps
+node_modules/
+.next/
+dist/
+*.tsbuildinfo
+
+# env — never commit secrets
+.env
+.env.local
+
+# db
+prisma/migrations/dev.db
+*.db
+
+# os
+.DS_Store
+
+# radio scratch
+data/radio/*.mp3
+!data/radio/.gitkeep
+
+# saved hackathon page (third-party content)
+Details*Cerebral Valley*

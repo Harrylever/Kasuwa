@@ -1,0 +1,205 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Source {
+  id          String   @id @default(cuid())
+  name        String
+  kind        String
+  url         String?
+  trustWeight Float    @default(1)
+  createdAt   DateTime @default(now())
+  items       RawItem[]
+}
+
+model RawItem {
+  id          String   @id @default(cuid())
+  sourceId    String
+  source      Source   @relation(fields: [sourceId], references: [id])
+  externalId  String
+  title       String
+  body        String
+  url         String?
+  publishedAt DateTime
+  fetchedAt   DateTime @default(now())
+  lang        String   @default("en")
+  category    String?
+  excluded    Boolean  @default(false)
+  excludedReason String?
+  severity    Int?
+  triagedAt   DateTime?
+
+  @@unique([sourceId, externalId])
+  @@index([publishedAt])
+}
+
+model Transcript {
+  id          String   @id @default(cuid())
+  sourceId    String
+  audioUrl    String
+  text        String
+  startedAt   DateTime
+  durationSec Int
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  summary     String
+  category    String
+  region      String
+  severity    Int
+  firstSeenAt DateTime
+  lastSeenAt  DateTime
+  items       EventItem[]
+}
+
+model EventItem {
+  eventId   String
+  rawItemId String
+  event     Event  @relation(fields: [eventId], references: [id])
+  @@id([eventId, rawItemId])
+}
+
+model IndicatorSeries {
+  id       String @id @default(cuid())
+  key      String @unique
+  unit     String
+  frequency String
+  sourceId String
+  points   IndicatorPoint[]
+}
+
+model IndicatorPoint {
+  id         String          @id @default(cuid())
+  seriesId   String
+  series     IndicatorSeries @relation(fields: [seriesId], references: [id])
+  observedAt DateTime
+  value      Float
+  @@index([seriesId, observedAt])
+}
+
+model Question {
+  id          String   @id @default(cuid())
+  vertical    String
+  templateId  String
+  text        String
+  type        String   @default("threshold")
+  seriesKey   String
+  operator    String
+  threshold   Float
+  resolveAt   DateTime
+  createdAt   DateTime @default(now())
+  createdAsOf DateTime
+  status      String   @default("open")
+  outcome     Boolean?
+  resolvedValue Float?
+  forecasts   Forecast[]
+  aggregate   AggregateForecast[]
+}
+
+model Forecast {
+  id          String   @id @default(cuid())
+  questionId  String
+  question    Question @relation(fields: [questionId], references: [id])
+  agent       String
+  probability Float
+  rationale   String
+  evidenceIds String   @default("[]")
+  asOf        DateTime
+  createdAt   DateTime @default(now())
+  abstained   Boolean  @default(false)
+  @@index([questionId, asOf])
+}
+
+model AggregateForecast {
+  id              String   @id @default(cuid())
+  questionId      String
+  question        Question @relation(fields: [questionId], references: [id])
+  probability     Float
+  asOf            DateTime
+  weightsSnapshot String   @default("{}")
+  @@index([questionId, asOf])
+}
+
+model Score {
+  id         String  @id @default(cuid())
+  questionId String
+  forecastId String?
+  aggregate  Boolean @default(false)
+  brier      Float
+  logLoss    Float
+}
+
+model TrustWeightLog {
+  id          String   @id @default(cuid())
+  subjectType String
+  subjectId   String
+  oldWeight   Float
+  newWeight   Float
+  reason      String
+  at          DateTime @default(now())
+}
+
+model BacktestRun {
+  id          String   @id @default(cuid())
+  asOfStart   DateTime
+  asOfEnd     DateTime
+  horizonDays Int
+  status      String   @default("pending")
+  summary     String   @default("{}")
+  createdAt   DateTime @default(now())
+}
+
+model LlmCache {
+  hash      String   @id
+  model     String
+  response  String
+  createdAt DateTime @default(now())
+}
+
+model LlmCall {
+  id        String   @id @default(cuid())
+  model     String
+  purpose   String
+  tokensIn  Int      @default(0)
+  tokensOut Int      @default(0)
+  costUsd   Float    @default(0)
+  cached    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Business {
+  id       String @id @default(cuid())
+  name     String
+  vertical String
+  region   String
+  createdAt DateTime @default(now())
+  exposures Exposure[]
+}
+
+model Exposure {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id])
+  data       String
+}
+
+model Recommendation {
+  id                String   @id @default(cuid())
+  businessId        String
+  questionIds       String   @default("[]")
+  action            String
+  headline          String
+  detail            String
+  expectedImpactNgn Float    @default(0)
+  confidence        String   @default("medium")
+  evidenceIds       String   @default("[]")
+  asOf              DateTime
+  createdAt         DateTime @default(now())
+}

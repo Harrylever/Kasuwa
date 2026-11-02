@@ -1,0 +1,23 @@
+{
+  "name": "kasuwa",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "bun@1.4.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "bun --filter web dev",
+    "build": "bun --filter web build",
+    "test": "bun test packages/core packages/verticals packages/llm",
+    "db:push": "bun --filter @kasuwa/db db:push",
+    "ingest": "bun --filter @kasuwa/worker ingest",
+    "triage": "bun --filter @kasuwa/worker triage",
+    "retriage": "bun --filter @kasuwa/worker retriage",
+    "cluster": "bun --filter @kasuwa/worker cluster",
+    "questions": "bun --filter @kasuwa/worker questions",
+    "forecast": "bun --filter @kasuwa/worker forecast",
+    "pipeline": "bun --filter @kasuwa/worker pipeline"
+  }
+}

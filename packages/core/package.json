@@ -1,0 +1,10 @@
+{
+  "name": "@kasuwa/core",
+  "version": "0.1.0",
+  "private": true,
+  "devDependencies": {
+    "typescript": "^5"
+  },
+  "main": "src/index.ts",
+  "types": "src/index.ts"
+}

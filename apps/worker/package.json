@@ -1,0 +1,23 @@
+{
+  "name": "@kasuwa/worker",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "bun src/index.ts",
+    "start": "bun src/index.ts",
+    "ingest": "bun --env-file=../../.env src/run-ingest.ts",
+    "triage": "bun --env-file=../../.env src/triage.ts",
+    "retriage": "bun --env-file=../../.env src/retriage.ts",
+    "cluster": "bun --env-file=../../.env src/cluster.ts",
+    "questions": "bun --env-file=../../.env src/questions.ts",
+    "forecast": "bun --env-file=../../.env src/forecast.ts",
+    "pipeline": "bun run ingest && bun run triage && bun run cluster && bun run questions && bun run forecast"
+  },
+  "dependencies": {
+    "@kasuwa/core": "0.1.0",
+    "@kasuwa/db": "0.1.0",
+    "@kasuwa/llm": "0.1.0",
+    "@kasuwa/verticals": "0.1.0",
+    "zod": "^3.23.8"
+  }
+}
